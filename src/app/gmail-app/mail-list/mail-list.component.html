@@ -1,0 +1,36 @@
+<ngb-accordion
+  class="container-fluid"
+  [closeOthers]="true"
+  (panelChange)="preventAutoOpen($event)"
+>
+
+  <ng-container *ngFor="let msg of messages">
+
+    <ngb-panel id="{{ msg.id }}">
+
+      <ng-template ngbPanelTitle>
+        <div class="row-fluid" [ngStyle]="{'font-weight': msg.read ? 'normal' : 'bold', 'text-align': 'left'}"
+             (click)="onMessageSelect(msg)">
+
+          <div class="col"><b>Sent by:</b>&nbsp;<i>{{ msg.from }}</i></div>
+          <div class="col "><b>Subject:</b>&nbsp;<i>{{ msg.subject }}</i></div>
+          <div class="col"><b>Date:</b>&nbsp;<i>{{ msg.date }}</i></div>
+        </div>
+      </ng-template>
+
+      <ng-template ngbPanelContent>
+        <app-mail-view
+          class="card"
+          [message]="selectedMessage"
+          (reply)="reply.emit($event)"
+          (forward)="forward.emit($event)"
+          (remove)="remove.emit($event)"
+        >
+        </app-mail-view>
+      </ng-template>
+
+    </ngb-panel>
+
+  </ng-container>
+
+</ngb-accordion>
