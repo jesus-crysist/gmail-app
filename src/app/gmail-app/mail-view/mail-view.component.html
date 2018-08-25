@@ -1,0 +1,48 @@
+<div class="card-header">
+  <div class="row">
+
+    <div class="col-4 order-12">
+
+      <ng-container *ngTemplateOutlet="buttons"></ng-container>
+
+    </div>
+
+    <h4 class="card-title col">{{ message.subject }}</h4>
+
+  </div>
+</div>
+
+<div class="card-body">
+
+  <div class="card-text">
+
+    <h5 *ngIf="!message.body">No body for this message.</h5>
+
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe #messageText></iframe>
+    </div>
+  </div>
+
+</div>
+<div class="card-footer">
+
+  <div class="float-right">
+    <ng-container *ngTemplateOutlet="buttons"></ng-container>
+  </div>
+
+</div>
+
+
+<ng-template #buttons>
+
+  <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary" (click)="reply.emit(this.message)">
+    <i class="fa fa-fw fa-mail-reply"></i> Reply
+  </a>
+  <a href="javascript:void(0)" class="btn btn-sm btn-outline-secondary" (click)="forward.emit(this.message)">
+    <i class="fa fa-fw fa-mail-forward"></i> Forward
+  </a>
+  <a href="javascript:void(0)" class="btn btn-sm btn-danger" (click)="remove.emit(this.message)">
+    <i class="fa fa-fw fa-trash"></i> Delete
+  </a>
+
+</ng-template>

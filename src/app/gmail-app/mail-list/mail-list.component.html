@@ -20,6 +20,7 @@
 
       <ng-template ngbPanelContent>
         <app-mail-view
+          *ngIf="selectedMessage?.id === msg.id"
           class="card"
           [message]="selectedMessage"
           (reply)="reply.emit($event)"
