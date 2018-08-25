@@ -2,10 +2,12 @@
   "extends": "../tslint.json",
   "rules": {
     "directive-selector": [
-      true
+      true,
+      "app"
     ],
     "component-selector": [
-      true
+      true,
+      "app"
     ]
   }
 }
