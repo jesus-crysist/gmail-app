@@ -1,0 +1,18 @@
+:host .nested-menu .list-group-item {
+  cursor: pointer;
+}
+
+:host .nested-menu .nested {
+  list-style-type: none;
+}
+
+:host .nested-menu ul.submenu {
+  display: none;
+  height: 0;
+}
+
+:host .nested-menu .expand ul.submenu  {
+  display: block;
+  list-style-type: none;
+  height: auto;
+}
