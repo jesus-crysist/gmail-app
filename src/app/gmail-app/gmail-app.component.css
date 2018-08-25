@@ -1,0 +1,23 @@
+:host section {
+  margin-top: 60px;
+}
+
+:host [app-label-sidebar] {
+  padding-top: 10px;
+}
+
+/*
+ * Sidebar
+ */
+
+:host .sidebar {
+  position: fixed;
+  top: 51px;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 25px 10px 0 10px;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  border-right: 1px solid #eee;
+}
