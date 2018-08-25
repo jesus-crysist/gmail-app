@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../out-tsc/app",
+    "types": [
+      "gapi",
+      "gapi.auth2"
+    ]
+  },
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}
