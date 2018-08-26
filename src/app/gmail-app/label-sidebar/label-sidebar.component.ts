@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Folder } from '../../shared/models';
+import { Label } from '../../shared/models';
 import { GoogleClientService } from '../../shared/google';
 
 @Component({
@@ -11,37 +11,39 @@ export class LabelSidebarComponent implements OnInit, AfterViewInit {
   
   @Input() searchTerm: string;
   
-  @Output() folderSelected: EventEmitter<Folder> = new EventEmitter<Folder>();
+  @Output() labelSelected: EventEmitter<Label> = new EventEmitter<Label>();
   
-  folders: Folder[];
+  labels: Label[];
   
   constructor (
     private googleService: GoogleClientService
   ) {
     
-    this.folders = this.googleService.getFolders();
+    this.labels = this.googleService.getLabels();
   }
   
   ngOnInit () {
-    this.googleService.loadFolders()
+    this.googleService.loadLabels()
       .then(
-        () => this.folders = this.googleService.getFolders()
+        () => this.labels = this.googleService.getLabels()
       );
   }
   
   ngAfterViewInit(): void {
-    const inbox = this.folders.find((folder: Folder) => folder.id.toUpperCase() === 'INBOX');
-    this.selectFolder(inbox);
+    const inbox = this.labels.find(
+      (label: Label) => label.id.toUpperCase() === 'INBOX'
+    );
+    this.selectLabel(inbox);
   }
   
-  selectFolder (folder: Folder): void {
+  selectLabel (label: Label): void {
     
-    if (!folder) {
+    if (!label) {
       return;
     }
     
-    folder.active = true;
-    this.folderSelected.emit(folder);
+    label.active = true;
+    this.labelSelected.emit(label);
   }
   
 }

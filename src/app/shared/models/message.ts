@@ -1,4 +1,4 @@
-import { Folder } from './folder';
+import { Label } from './label';
 
 export interface Message {
     id?: string;
@@ -15,5 +15,5 @@ export interface Message {
     body?: string;
     read?: boolean;
     open?: boolean;
-    folder?: Folder;
+    label?: Label;
 }

@@ -1,11 +1,10 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { Message } from '../../shared/models';
-import { GoogleClientService } from '../../shared/google';
 
 @Component({
   selector: 'app-mail-view',
   templateUrl: './mail-view.component.html',
-  styleUrls: ['./mail-view.component.css']
+  styleUrls: [ './mail-view.component.css' ]
 })
 export class MailViewComponent implements OnChanges {
   
@@ -18,26 +17,10 @@ export class MailViewComponent implements OnChanges {
   @ViewChild('messageText')
   messageTextContainer: ElementRef;
   
-  constructor (googleService: GoogleClientService) {
-    
-    // googleService.singleMessage.subscribe((msg: Message) => {
-    //
-    //   if (this.message && msg.id === this.message.id) {
-    //     ngZone.run(() => {
-    //
-    //       this.message.body = msg.body;
-    //
-    //       const el = this.messageTextContainer.nativeElement;
-    //
-    //       if (el && el.contentWindow) {
-    //         el.contentWindow.document.body.innerHTML = msg.body;
-    //       }
-    //     });
-    //   }
-    // });
+  constructor () {
   }
-
-  ngOnChanges() {
+  
+  ngOnChanges () {
     if (this.message && this.messageTextContainer) {
       const el = this.messageTextContainer.nativeElement;
       
@@ -46,5 +29,5 @@ export class MailViewComponent implements OnChanges {
       }
     }
   }
-
+  
 }

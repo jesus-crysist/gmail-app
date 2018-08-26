@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 })
 export class NavigationComponent implements AfterViewInit {
   
-  @Input() selectedFolder: string;
+  @Input() selectedLabel: string;
   @Input() loggedUser: string;
   @Input() userAvatar: string;
   

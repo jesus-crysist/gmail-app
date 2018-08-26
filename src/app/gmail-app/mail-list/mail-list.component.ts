@@ -6,7 +6,7 @@ import { NgbAccordion, NgbPanel, NgbPanelChangeEvent } from '@ng-bootstrap/ng-bo
 @Component({
   selector: '[app-mail-list]',
   templateUrl: './mail-list.component.html',
-  styleUrls: ['./mail-list.component.css']
+  styleUrls: [ './mail-list.component.css' ]
 })
 export class MailListComponent implements OnInit {
   
@@ -46,12 +46,12 @@ export class MailListComponent implements OnInit {
     }
   }
   
-  preventAutoOpen(event: NgbPanelChangeEvent): void {
+  preventAutoOpen (event: NgbPanelChangeEvent): void {
     
     if (event.panelId === this.openedMessagePanel) {
       event.preventDefault();
       this.openedMessagePanel = event.panelId;
     }
   }
-
+  
 }

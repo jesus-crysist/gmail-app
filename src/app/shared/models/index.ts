@@ -1,3 +1,3 @@
-export * from './folder';
+export * from './label';
 export * from './message';
 export * from './user';

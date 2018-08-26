@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
 
-import { Folder, Message } from '../models';
+import { Label, Message } from '../models';
 
 @Injectable()
 export class GoogleClientService {
   
-  private folders: Array<Folder> = [];
+  private labels: Array<Label> = [];
   
   private messages: Array<Message> = [];
-  
-  private selectedMessage: Message;
   
   private gmailClient: any;
   private requestData = { userId: 'me' };
   private nextPageToken: string;
-  private currentFolder: Folder;
+  private currentLabel: Label;
   
   /**
    * Decode message's body from base64's to plain text, replacing few characters on the way.
@@ -68,117 +66,117 @@ export class GoogleClientService {
     this.gmailClient = gapi.client.gmail.users;
   }
   
-  public getFolders(): Array<Folder> {
-    return this.folders;
+  public getLabels(): Array<Label> {
+    return this.labels;
   }
   
-  public async loadFolders (): Promise<void> {
+  public async loadLabels (): Promise<void> {
     
     const resp = (await this.gmailClient.labels.list(this.requestData));
     
-    const labels: any[] = resp.result.labels;
-    const folders: Folder[] = [];
+    const labelsResult: any[] = resp.result.labels;
+    const labels: Label[] = [];
     
-    const sortedLabels = labels.sort((l1: any, l2: any) => l1.name - l2.name);
+    const sortedLabels = labelsResult.sort((l1: any, l2: any) => l1.name - l2.name);
     
     // each iteration returns Promise, and await Promise.all() waits for all of them to be finished
     await Promise.all(
       sortedLabels.map(async (label: any) => {
         if (label.type !== 'system' || label.labelListVisibility === 'labelShow') {
-          await this.addFolder(label, folders);
+          await this.addLabel(label, labels);
         }
       })
     );
     
-    this.folders = folders;
+    this.labels = labels;
   }
   
-  private async addFolder (data: {id: string, name: string}, folderList: Folder[]): Promise<void> {
+  private async addLabel (data: {id: string, name: string}, labelList: Label[]): Promise<void> {
     
-    const subfolderSplitIndex = data.name.indexOf('/');
+    const sublabelSplitIndex = data.name.indexOf('/');
     
-    const folderToAdd = <Folder>{
+    const labelToAdd = <Label>{
       id: data.id,
       active: false
     };
     
-    if (subfolderSplitIndex > 0) {
+    if (sublabelSplitIndex > 0) {
       
-      const foldersSplit = data.name.split('/');
+      const labelsSplit = data.name.split('/');
       
-      let parentFolder = folderList.find((f: Folder) => f.name === foldersSplit[ 0 ]);
+      let parentLabel = labelList.find((f: Label) => f.name === labelsSplit[ 0 ]);
       
-      if (!parentFolder) {
-        parentFolder = <Folder>{
-          id: foldersSplit[ 0 ],
-          name: foldersSplit[ 0 ],
+      if (!parentLabel) {
+        parentLabel = <Label>{
+          id: labelsSplit[ 0 ],
+          name: labelsSplit[ 0 ],
           active: false,
           children: [],
           expand: false
         };
         
-        folderList.push(parentFolder);
+        labelList.push(parentLabel);
       }
       
-      folderToAdd.name = foldersSplit[ 1 ];
+      labelToAdd.name = labelsSplit[ 1 ];
       
-      await this.getAdditionalFolderData(folderToAdd).then();
+      await this.getAdditionalLabelData(labelToAdd).then();
       
-      parentFolder.children.push(folderToAdd);
+      parentLabel.children.push(labelToAdd);
       
     } else {
       
-      const existing = folderList.find((f: Folder) => f.name === data.name);
+      const existing = labelList.find((f: Label) => f.name === data.name);
       
-      folderToAdd.name = data.name;
+      labelToAdd.name = data.name;
       
-      await this.getAdditionalFolderData(folderToAdd).then();
+      await this.getAdditionalLabelData(labelToAdd).then();
       
       if (!existing) {
-        folderList.push(folderToAdd);
+        labelList.push(labelToAdd);
       }
     }
   }
   
   /**
-   * Getting folder data form the list doesn't return count of total and unread message.
-   * These data will be added asynchronously after the folder instance is created.
-   * @param {Folder} folder
+   * Getting label data form the list doesn't return count of total and unread message.
+   * These data will be added asynchronously after the label instance is created.
+   * @param {Label} label
    */
-  private async getAdditionalFolderData (folder: Folder): Promise<void> {
+  private async getAdditionalLabelData (label: Label): Promise<void> {
     
     const requestData = Object.assign({
-      id: folder.id
+      id: label.id
     }, this.requestData);
     
     const resp = (await this.gmailClient.labels.get(requestData)).result;
     
-    folder.messagesTotal = resp.messagesTotal;
-    folder.messagesUnread = resp.messagesUnread;
+    label.messagesTotal = resp.messagesTotal;
+    label.messagesUnread = resp.messagesUnread;
   }
   
   public getMessages(): Array<Message> {
     return this.messages;
   }
   
-  public async loadMessages (folder: Folder, query: string = null): Promise<void> {
+  public async loadMessages (label: Label, query: string = null): Promise<void> {
   
     const maxResults = 10;
   
     const requestData = Object.assign({
       q: query,
-      labelIds: [ folder.id ],
+      labelIds: [ label.id ],
       maxResults: maxResults,
       nextPageToken: null
     }, this.requestData);
   
-    if (this.currentFolder) {
-      if (this.currentFolder === folder) {
+    if (this.currentLabel) {
+      if (this.currentLabel === label) {
         if (this.nextPageToken) {
           requestData.nextPageToken = this.nextPageToken;
         }
-      } else if (this.currentFolder !== folder) {
-        this.currentFolder = folder;
+      } else if (this.currentLabel !== label) {
+        this.currentLabel = label;
       }
     }
   
@@ -192,10 +190,10 @@ export class GoogleClientService {
       return;
     }
   
-    await this.parseMessages(responseMessages, folder).then();
+    await this.parseMessages(responseMessages, label).then();
   }
   
-  private async parseMessages(responseMessages: Array<any>, folder: Folder): Promise<void> {
+  private async parseMessages(responseMessages: Array<any>, label: Label): Promise<void> {
     
     const messages: Message[] = [];
     const messageCount = responseMessages.length;
@@ -208,7 +206,7 @@ export class GoogleClientService {
         const msg: Message = await this.getMessage(m.id, 'metadata');
   
         if (msg && typeof msg === 'object') {
-          msg.folder = folder;
+          msg.label = label;
     
           messages.push(msg);
     
@@ -305,7 +303,7 @@ export class GoogleClientService {
   
   /**
    * In order to mark message as *unread*, it should be modified so that label "UNREAD" should be removed
-   * from its list. After that is done, substract 1 from folder's unread count.
+   * from its list. After that is done, substract 1 from labels's unread count.
    * @param {Message} message
    */
   public markMessageRead (message: Message): void {
@@ -319,7 +317,7 @@ export class GoogleClientService {
       .modify(requestData)
       .execute(() => {
         message.read = true;
-        message.folder.messagesUnread--;
+        message.label.messagesUnread--;
       });
   }
   
@@ -351,8 +349,9 @@ export class GoogleClientService {
   
   /**
    * Delete given message.
-   * After successful deletion, get new batch of the messages from the folder given message was in.
+   * After successful deletion, get new batch of the messages from the label given message was in.
    * @param {Message} message
+   * @param {Function} callback
    */
   public deleteMessage (message: Message, callback: Function): void {
     
@@ -362,9 +361,6 @@ export class GoogleClientService {
     
     this.gmailClient.messages
       .delete(requestData)
-      .execute(() => {
-        this.loadMessages(message.folder).then();
-        callback();
-      });
+      .execute(() => callback());
   }
 }

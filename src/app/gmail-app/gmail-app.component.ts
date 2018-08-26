@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthenticationService } from '../login';
 import { GoogleClientService } from '../shared/google';
 import { ToastrService } from 'ngx-toastr';
-import { Folder, Message, User } from '../shared/models';
+import { Label, Message, User } from '../shared/models';
 
 @Component({
   selector: 'app-gmail-app',
@@ -15,7 +15,7 @@ export class GmailAppComponent implements OnInit {
   loggedUser: User;
   searchTerm: string;
   
-  selectedFolder: Folder;
+  selectedLabel: Label;
   messageList: Array<Message> = [];
   
   loading: boolean;
@@ -33,7 +33,9 @@ export class GmailAppComponent implements OnInit {
   
   ngOnInit(): void {
     this.loading = true;
-    this.googleService.loadGmailClient().then(() => this.loading = false);
+    this.googleService.loadGmailClient().then(
+      () => this.loading = false
+    );
   }
 
   onLogout () {
@@ -45,16 +47,18 @@ export class GmailAppComponent implements OnInit {
     this.searchTerm = searchTerm;
   }
   
-  onFolderSelected(folder: Folder): void {
-    if (this.selectedFolder) {
-      this.selectedFolder.active = false;
+  onLabelSelected(label: Label): void {
+    if (this.selectedLabel) {
+      this.selectedLabel.active = false;
     }
     
-    this.selectedFolder = folder;
+    this.selectedLabel = label;
     
-    console.log('selected folder', folder);
+    console.log('selected label', label);
   
-    this.googleService.loadMessages(folder).then(() => this.messageList = this.googleService.getMessages());
+    this.googleService.loadMessages(label).then(
+      () => this.messageList = this.googleService.getMessages()
+    );
   }
   
   replyTo (replyToMessage: Message): void {
@@ -75,9 +79,17 @@ export class GmailAppComponent implements OnInit {
   
   deleteMessage (message: Message) {
     
-    this.googleService
-      .deleteMessage(message, () =>
-        this.toastService.success(`Subject: ${message.subject}`, 'Message deleted!')
+    // keep label reference so it can be later used to load new list of messages
+    const currentLabel = this.selectedLabel;
+    
+    this.googleService.deleteMessage(message,
+        () => {
+          // anull current selected label reference, so it doesn't "deselects" it in label list
+          this.selectedLabel = null;
+          // initiate re-fetching messages in current label
+          this.onLabelSelected(currentLabel);
+          this.toastService.success(`Subject: ${message.subject}`, 'Message deleted!')
+        }
       );
   }
   

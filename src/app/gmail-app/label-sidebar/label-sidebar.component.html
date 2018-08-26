@@ -1,25 +1,25 @@
 <ul class="list-group">
 
-  <ng-template ngFor [ngForOf]="folders" let-folder>
+  <ng-template ngFor [ngForOf]="labels" let-label>
 
-    <ng-template ngIf [ngIf]="!folder.children || folder.children?.length === 0">
-      <ng-container *ngTemplateOutlet="folderItem; context: {$implicit: folder}"></ng-container>
+    <ng-template ngIf [ngIf]="!label.children || label.children?.length === 0">
+      <ng-container *ngTemplateOutlet="labelItem; context: {$implicit: label}"></ng-container>
     </ng-template>
 
-    <ng-template ngIf [ngIf]="folder.children && folder.children?.length > 0">
+    <ng-template ngIf [ngIf]="label.children && label.children?.length > 0">
 
       <div class="nested-menu">
 
-        <a class="list-group-item" href="javascript:void(0)" (click)="folder.expand = !folder.expand">
-          <span><i class="fa fa-plus"></i>&nbsp; {{ folder.name }}</span>
+        <a class="list-group-item" href="javascript:void(0)" (click)="label.expand = !label.expand">
+          <span><i class="fa fa-plus"></i>&nbsp; {{ label.name }}</span>
         </a>
 
-        <div class="nested" [class.expand]="folder.expand">
+        <div class="nested" [class.expand]="label.expand">
           <ul class="submenu">
 
-            <ng-template ngFor [ngForOf]="folder.children" let-subfolder>
+            <ng-template ngFor [ngForOf]="label.children" let-sublabel>
 
-              <ng-container *ngTemplateOutlet="folderItem; context: {$implicit: subfolder}"></ng-container>
+              <ng-container *ngTemplateOutlet="labelItem; context: {$implicit: sublabel}"></ng-container>
 
             </ng-template>
 
@@ -33,11 +33,11 @@
   </ng-template>
 </ul>
 
-<ng-template #folderItem let-folder>
+<ng-template #labelItem let-label>
   <a class="list-group-item" href="javascript:void(0)"
-     (click)="selectFolder(folder)"
-     [ngClass]="{'active': folder.active}">
-    <i class="fa fa-fw fa-inbox"></i>&nbsp;{{ folder.name }}
-    <span class="badge badge-primary" *ngIf="folder.messagesUnread > 0">{{ folder.messagesUnread }}</span>
+     (click)="selectLabel(label)"
+     [ngClass]="{'active': label.active}">
+    <i class="fa fa-fw fa-inbox"></i>&nbsp;{{ label.name }}
+    <span class="badge badge-primary" *ngIf="label.messagesUnread > 0">{{ label.messagesUnread }}</span>
   </a>
 </ng-template>
