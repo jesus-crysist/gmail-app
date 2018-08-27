@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Label } from '../../shared/models';
 import { GoogleClientService } from '../../shared/google';
 
@@ -7,13 +7,12 @@ import { GoogleClientService } from '../../shared/google';
   templateUrl: './label-sidebar.component.html',
   styleUrls: [ './label-sidebar.component.css' ]
 })
-export class LabelSidebarComponent implements OnInit, AfterViewInit {
+export class LabelSidebarComponent implements OnInit {
   
-  @Input() searchTerm: string;
+  @Input() labels: Array<Label>;
+  @Input() initialLoading: boolean;
   
   @Output() labelSelected: EventEmitter<Label> = new EventEmitter<Label>();
-  
-  labels: Label[];
   
   constructor (
     private googleService: GoogleClientService
@@ -23,13 +22,6 @@ export class LabelSidebarComponent implements OnInit, AfterViewInit {
   }
   
   ngOnInit () {
-    this.googleService.loadLabels()
-      .then(
-        () => this.labels = this.googleService.getLabels()
-      );
-  }
-  
-  ngAfterViewInit(): void {
     const inbox = this.labels.find(
       (label: Label) => label.id.toUpperCase() === 'INBOX'
     );

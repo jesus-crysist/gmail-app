@@ -77,7 +77,9 @@ export class GoogleClientService {
     const labelsResult: any[] = resp.result.labels;
     const labels: Label[] = [];
     
-    const sortedLabels = labelsResult.sort((l1: any, l2: any) => l1.name - l2.name);
+    const sortedLabels = labelsResult.sort((l1: any, l2: any) => {
+      return (l1.name < l2.name ? -1 : (l1.name > l2.name ? 1 : 0));
+    });
     
     // each iteration returns Promise, and await Promise.all() waits for all of them to be finished
     await Promise.all(

@@ -29,14 +29,15 @@ export class NavigationComponent implements AfterViewInit {
   
   ngAfterViewInit () {
     
-    fromEvent(this.searchField.nativeElement, 'keypress')
+    fromEvent(this.searchField.nativeElement, 'keydown')
       .pipe(
         debounceTime(750),
         distinctUntilChanged(),
         map((keyEvent: KeyboardEvent) => keyEvent.srcElement)
-      ).subscribe((element: HTMLInputElement) => {
-      this.search.emit(element.value);
-    });
+      )
+      .subscribe((element: HTMLInputElement) => {
+        this.search.emit(element.value);
+      });
     
   }
   

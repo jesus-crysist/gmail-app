@@ -20,7 +20,6 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "@ng-bootstrap/ng-bootstrap": "^3.0.0",
-    "@types/gapi": "0.0.36",
     "@types/gapi.auth2": "0.0.47",
     "@types/gapi.client.gmail": "^1.0.0",
     "bootstrap": "^4.1.3",

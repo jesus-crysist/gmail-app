@@ -8,6 +8,13 @@
 <section class="container-fluid">
   <div class="row">
 
+    <nav app-label-sidebar
+         *ngIf="labelList.length"
+         class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
+         [labels]="labelList"
+         (labelSelected)="onLabelSelected($event)"
+    ></nav>
+
     <!-- loading layout replaced by app after startupp -->
     <div class="app-loading" *ngIf="loading">
       <div class="logo"></div>
@@ -16,24 +23,16 @@
       </svg>
     </div>
 
-    <ng-container *ngIf="!loading">
-
-      <nav app-label-sidebar
-        class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
-        [searchTerm]="searchTerm"
-           (labelSelected)="onLabelSelected($event)"
-      ></nav>
-
-      <main app-mail-list class="col-sm-8 ml-sm-auto col-md-9 pt-3"
-        [messages]="messageList"
-        (reply)="replyTo($event)"
-        (forward)="forwardMessage($event)"
-        (remove)="deleteMessage($event)"
-      >
-        <h2>Content!</h2>
-      </main>
-
-    </ng-container>
+    <main app-mail-list
+          *ngIf="!loading"
+          class="col-sm-8 ml-sm-auto col-md-9 pt-3"
+          [messages]="messageList"
+          (reply)="replyTo($event)"
+          (forward)="forwardMessage($event)"
+          (remove)="deleteMessage($event)"
+    >
+      <h2>Content!</h2>
+    </main>
 
   </div>
 </section>

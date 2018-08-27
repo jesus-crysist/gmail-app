@@ -13,8 +13,8 @@ import { Label, Message, User } from '../shared/models';
 export class GmailAppComponent implements OnInit {
   
   loggedUser: User;
-  searchTerm: string;
   
+  labelList: Array<Label> = [];
   selectedLabel: Label;
   messageList: Array<Message> = [];
   
@@ -32,10 +32,16 @@ export class GmailAppComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    this.initialLoadData().then();
+  }
+  
+  private async initialLoadData(): Promise<void> {
     this.loading = true;
-    this.googleService.loadGmailClient().then(
-      () => this.loading = false
-    );
+  
+    await this.googleService.loadGmailClient();
+    await this.googleService.loadLabels();
+    
+    this.labelList = this.googleService.getLabels();
   }
 
   onLogout () {
@@ -43,8 +49,9 @@ export class GmailAppComponent implements OnInit {
     this.router.navigate([ '/login' ]);
   }
   
-  searchMail(searchTerm: string): void {
-    this.searchTerm = searchTerm;
+  async searchMail(searchTerm: string): Promise<void> {
+    await this.googleService.loadMessages(this.selectedLabel, searchTerm);
+    this.messageList = this.googleService.getMessages();
   }
   
   onLabelSelected(label: Label): void {
@@ -52,12 +59,17 @@ export class GmailAppComponent implements OnInit {
       this.selectedLabel.active = false;
     }
     
+    this.loading = true;
+    
     this.selectedLabel = label;
     
     console.log('selected label', label);
   
     this.googleService.loadMessages(label).then(
-      () => this.messageList = this.googleService.getMessages()
+      () => {
+        this.messageList = this.googleService.getMessages();
+        this.loading = false;
+      }
     );
   }
   
@@ -88,7 +100,7 @@ export class GmailAppComponent implements OnInit {
           this.selectedLabel = null;
           // initiate re-fetching messages in current label
           this.onLabelSelected(currentLabel);
-          this.toastService.success(`Subject: ${message.subject}`, 'Message deleted!')
+          this.toastService.success(`Subject: ${message.subject}`, 'Message deleted!');
         }
       );
   }
