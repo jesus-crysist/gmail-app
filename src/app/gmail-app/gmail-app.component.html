@@ -5,23 +5,35 @@
   (search)="searchMail($event)"
 ></app-navigation>
 
-<section class="container-fluid" *ngIf="!loading">
+<section class="container-fluid">
   <div class="row">
 
-    <nav app-label-sidebar
-      class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
-      [searchTerm]="searchTerm"
-         (labelSelected)="onLabelSelected($event)"
-    ></nav>
+    <!-- loading layout replaced by app after startupp -->
+    <div class="app-loading" *ngIf="loading">
+      <div class="logo"></div>
+      <svg class="spinner" viewBox="25 25 50 50">
+        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+      </svg>
+    </div>
 
-    <main app-mail-list class="col-sm-8 ml-sm-auto col-md-9 pt-3"
-      [messages]="messageList"
-      (reply)="replyTo($event)"
-      (forward)="forwardMessage($event)"
-      (remove)="deleteMessage($event)"
-    >
-      <h2>Content!</h2>
-    </main>
+    <ng-container *ngIf="!loading">
+
+      <nav app-label-sidebar
+        class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
+        [searchTerm]="searchTerm"
+           (labelSelected)="onLabelSelected($event)"
+      ></nav>
+
+      <main app-mail-list class="col-sm-8 ml-sm-auto col-md-9 pt-3"
+        [messages]="messageList"
+        (reply)="replyTo($event)"
+        (forward)="forwardMessage($event)"
+        (remove)="deleteMessage($event)"
+      >
+        <h2>Content!</h2>
+      </main>
+
+    </ng-container>
 
   </div>
 </section>
