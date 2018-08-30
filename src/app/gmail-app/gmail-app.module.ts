@@ -6,6 +6,7 @@ import { LoginModule } from '../login';
 import { NavigationModule } from './navigation/navigation.module';
 import { LabelSidebarModule } from './label-sidebar/label-sidebar.module';
 import { MailListModule } from './mail-list/mail-list.module';
+import { MailFormModalModule } from './mail-form-modal/mail-form-modal.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { MailListModule } from './mail-list/mail-list.module';
     
     NavigationModule,
     LabelSidebarModule,
-    MailListModule
+    MailListModule,
+    MailFormModalModule
   ],
   declarations: [ GmailAppComponent ]
 })

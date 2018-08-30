@@ -12,7 +12,14 @@ export class GoogleClientService {
   private gmailClient: any;
   private requestData = { userId: 'me' };
   private nextPageToken: string;
+  
   private currentLabel: Label;
+  private currentQuery: string;
+  private currentPageToken: string;
+  private pageTokens: Array<string> = [];
+  
+  public hasPreviousPage: boolean;
+  public hasNextPage: boolean;
   
   /**
    * Decode message's body from base64's to plain text, replacing few characters on the way.
@@ -55,8 +62,7 @@ export class GoogleClientService {
     
   }
   
-  constructor (
-  ) {
+  constructor () {
   }
   
   public async loadGmailClient (): Promise<void> {
@@ -66,7 +72,7 @@ export class GoogleClientService {
     this.gmailClient = gapi.client.gmail.users;
   }
   
-  public getLabels(): Array<Label> {
+  public getLabels (): Array<Label> {
     return this.labels;
   }
   
@@ -93,7 +99,7 @@ export class GoogleClientService {
     this.labels = labels;
   }
   
-  private async addLabel (data: {id: string, name: string}, labelList: Label[]): Promise<void> {
+  private async addLabel (data: { id: string, name: string }, labelList: Label[]): Promise<void> {
     
     const sublabelSplitIndex = data.name.indexOf('/');
     
@@ -157,48 +163,79 @@ export class GoogleClientService {
     label.messagesUnread = resp.messagesUnread;
   }
   
-  public getMessages(): Array<Message> {
+  public getMessages (): Array<Message> {
     return this.messages;
   }
   
-  public async loadMessages (label: Label, query: string = null): Promise<void> {
+  public async getNextMessagePage (): Promise<void> {
+    await this.loadMessages(this.currentLabel, this.currentQuery, this.nextPageToken);
+  }
   
+  public async getPreviousMessagePage (): Promise<void> {
+    const previousToken = this.pageTokens.pop();
+    this.nextPageToken = null;
+    
+    if (this.pageTokens.length === 0) {
+      this.hasPreviousPage = false;
+    }
+    
+    await this.loadMessages(this.currentLabel, this.currentQuery, previousToken, true);
+  }
+  
+  public async loadMessages (label: Label, query: string = null, pageToken: string = null, goingBackwards: boolean = false): Promise<void> {
+    
     const maxResults = 10;
-  
+    
+    this.currentQuery = query;
+    
     const requestData = Object.assign({
       q: query,
       labelIds: [ label.id ],
       maxResults: maxResults,
-      nextPageToken: null
+      pageToken: pageToken
     }, this.requestData);
-  
-    if (this.currentLabel) {
-      if (this.currentLabel === label) {
-        if (this.nextPageToken) {
-          requestData.nextPageToken = this.nextPageToken;
-        }
-      } else if (this.currentLabel !== label) {
-        this.currentLabel = label;
-      }
+    
+    let resp = null;
+    
+    try {
+      resp = (await this.gmailClient.messages.list(requestData)).result;
+    } catch (ex) {
+      console.log('exception', ex);
     }
-  
-    const resp = (await this.gmailClient.messages.list(requestData)).result;
-  
+    
+    // add current token to list of previous tokens if not going backwards
+    if (this.currentPageToken !== undefined && !goingBackwards) {
+      this.pageTokens.push(this.currentPageToken);
+      this.hasPreviousPage = true;
+    }
+    
+    // if label has changed or current label does not exist, reset previous tokens list
+    if (!this.currentLabel || this.currentLabel.id !== label.id) {
+      this.pageTokens = [];
+      this.hasPreviousPage = false;
+      this.currentPageToken = null;
+    }
+    
+    // set current page token to provided token
+    this.currentPageToken = pageToken;
+    
+    this.currentLabel = label;
     this.nextPageToken = resp.nextPageToken;
+    this.hasNextPage = !!this.nextPageToken;
+    
     const responseMessages: any[] = resp.messages;
-  
+    
     if (typeof responseMessages === 'undefined' || responseMessages.length === 0) {
       this.messages = [];
       return;
     }
-  
+    
     await this.parseMessages(responseMessages, label).then();
   }
   
-  private async parseMessages(responseMessages: Array<any>, label: Label): Promise<void> {
+  private async parseMessages (responseMessages: Array<any>, label: Label): Promise<void> {
     
     const messages: Message[] = [];
-    const messageCount = responseMessages.length;
     
     // console.log('message count', messageCount);
     
@@ -206,21 +243,17 @@ export class GoogleClientService {
       responseMessages.map(async (m: Message) => {
         
         const msg: Message = await this.getMessage(m.id, 'metadata');
-  
+        
         if (msg && typeof msg === 'object') {
           msg.label = label;
-    
+          
           messages.push(msg);
-    
-          if (messages.length === messageCount) {
-            // console.log('messages length', messages.length);
-      
-            messages.sort((msg1: Message, msg2: Message) => msg2.internalDate - msg1.internalDate);
-          }
         }
       })
     );
-  
+    
+    messages.sort((msg1: Message, msg2: Message) => msg2.internalDate - msg1.internalDate);
+    
     this.messages = messages;
   }
   
@@ -234,9 +267,9 @@ export class GoogleClientService {
     const resp = (await this.gmailClient.messages.get(requestData)).result;
     
     let msg: Message = null;
-    const messages: Array<Message> = this.messages;
     
     if (format === 'raw') {
+      const messages: Array<Message> = this.messages;
       msg = messages.find((m: Message) => m.id === msgId);
       msg.body = atob(resp.raw.replace(/-/g, '+').replace(/_/g, '/'));
     } else {
@@ -246,7 +279,7 @@ export class GoogleClientService {
       resp.payload.headers.forEach((h: any) => {
         headers[ h.name ] = h.value;
       });
-  
+      
       let fromMatch = null;
       let toMatch = null;
       const nameEmailRegexp = /([\w\d\s\.\-\(\),]*)[<]*([\w\d\s\-\@\.]+)[>]*/gi;

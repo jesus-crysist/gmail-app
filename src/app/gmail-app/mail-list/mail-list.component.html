@@ -1,3 +1,14 @@
+<div class="row">
+  <div class="col-4">
+    <button class="btn btn-outline-info" [disabled]="!hasPreviousPage" (click)="getPreviousMessages()">Previous</button>
+  </div>
+
+  <div class="col-4 offset-4">
+    <button class="btn btn-outline-info float-right" [disabled]="!hasNextPage" (click)="getNextMessages()">Next</button>
+  </div>
+
+</div>
+
 <ngb-accordion
   class="container-fluid"
   [closeOthers]="true"

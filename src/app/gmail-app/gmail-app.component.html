@@ -1,8 +1,9 @@
 <app-navigation
   [loggedUser]="loggedUser?.name"
   [userAvatar]="loggedUser?.avatarUrl"
-  (logout)="onLogout($event)"
   (search)="searchMail($event)"
+  (compose)="openMailModal()"
+  (logout)="onLogout()"
 ></app-navigation>
 
 <section class="container-fluid">
@@ -27,12 +28,18 @@
           *ngIf="!loading"
           class="col-sm-8 ml-sm-auto col-md-9 pt-3"
           [messages]="messageList"
+          [hasPreviousPage]="hasPreviousPage"
+          [hasNextPage]="hasNextPage"
           (reply)="replyTo($event)"
           (forward)="forwardMessage($event)"
           (remove)="deleteMessage($event)"
+          (previous)="goToPreviousPage()"
+          (next)="goToNextPage()"
     >
       <h2>Content!</h2>
     </main>
 
   </div>
 </section>
+
+<app-mail-form-modal (send)="sendMessage($event)"></app-mail-form-modal>

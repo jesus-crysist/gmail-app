@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Message } from '../../shared/models';
 import { GoogleClientService } from '../../shared/google';
-import { NgbAccordion, NgbPanel, NgbPanelChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordion, NgbPanelChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: '[app-mail-list]',
@@ -11,24 +11,28 @@ import { NgbAccordion, NgbPanel, NgbPanelChangeEvent } from '@ng-bootstrap/ng-bo
 export class MailListComponent implements OnInit {
   
   @Input() messages: Message[] = [];
+  @Input() hasNextPage: boolean;
+  @Input() hasPreviousPage: boolean;
   
   @Output() reply: EventEmitter<Message> = new EventEmitter<Message>();
   @Output() forward: EventEmitter<Message> = new EventEmitter<Message>();
   @Output() remove: EventEmitter<Message> = new EventEmitter<Message>();
+  @Output() previous: EventEmitter<void> = new EventEmitter<void>();
+  
+  @Output() next: EventEmitter<void> = new EventEmitter<void>();
   
   selectedMessage: Message;
   
   private openedMessagePanel: string;
   
-  @ViewChild(NgbAccordion)
-  private accordion: NgbAccordion;
+  @ViewChild(NgbAccordion) private accordion: NgbAccordion;
   
   constructor (
     private googleService: GoogleClientService
   ) {
   }
   
-  ngOnInit () {
+  ngOnInit (): void {
   }
   
   onMessageSelect (msg: Message): void {
@@ -52,6 +56,14 @@ export class MailListComponent implements OnInit {
       event.preventDefault();
       this.openedMessagePanel = event.panelId;
     }
+  }
+  
+  getPreviousMessages (): void {
+    this.previous.emit();
+  }
+  
+  getNextMessages (): void {
+    this.next.emit();
   }
   
 }
