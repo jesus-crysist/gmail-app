@@ -10,13 +10,16 @@ import { AuthenticationService } from './authentication.service';
 })
 export class LoginComponent {
   
+  private error: string;
+  
   constructor (private router: Router, private authService: AuthenticationService) {
   }
   
   login (): void {
     this.authService.authenticate()
-      .then(() => {
-        this.router.navigate([ '/' ]).then();
-      });
+      .then(
+        () => this.router.navigate([ '/' ]),
+        (error) => this.error = error
+      );
   }
 }

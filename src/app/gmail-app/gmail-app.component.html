@@ -1,19 +1,15 @@
 <app-navigation
-  [loggedUser]="loggedUser?.name"
-  [userAvatar]="loggedUser?.avatarUrl"
-  (search)="searchMail($event)"
-  (compose)="openMailModal()"
+  [loggedUser]="loggedUser?.name" [userAvatar]="loggedUser?.avatarUrl"
+  (search)="searchMessages($event)" (compose)="openMailModal()"
   (logout)="onLogout()"
 ></app-navigation>
 
 <section class="container-fluid">
   <div class="row">
 
-    <nav app-label-sidebar
-         *ngIf="labelList.length"
-         class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
-         [labels]="labelList"
-         (labelSelected)="onLabelSelected($event)"
+    <nav app-label-sidebar *ngIf="labelList.length"
+     class="col-sm-4 col-md-3 d-none d-sm-block bg-light sidebar"
+     [labels]="labelList" (labelSelected)="onLabelSelected($event)"
     ></nav>
 
     <!-- loading layout replaced by app after startupp -->
@@ -24,19 +20,14 @@
       </svg>
     </div>
 
-    <main app-mail-list
+    <main app-message-list
           *ngIf="!loading"
           class="col-sm-8 ml-sm-auto col-md-9 pt-3"
-          [messages]="messageList"
-          [hasPreviousPage]="hasPreviousPage"
-          [hasNextPage]="hasNextPage"
-          (reply)="replyTo($event)"
-          (forward)="forwardMessage($event)"
-          (remove)="deleteMessage($event)"
-          (previous)="goToPreviousPage()"
-          (next)="goToNextPage()"
+          [messages]="messageList" [hasPreviousPage]="hasPreviousPage"
+          [hasNextPage]="hasNextPage" (reply)="replyTo($event)"
+          (forward)="forwardMessage($event)" (remove)="deleteMessage($event)"
+          (previous)="goToPreviousPage()" (next)="goToNextPage()"
     >
-      <h2>Content!</h2>
     </main>
 
   </div>

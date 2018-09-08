@@ -26,7 +26,7 @@ export class AuthenticationService {
   }
   
   private async loadGoogleApiAuthLib (): Promise<void> {
-    await this.gapiService.loadGoogleApiAuth().then();
+    await this.gapiService.loadGoogleAuthApi().then();
   }
   
   /**
@@ -37,7 +37,7 @@ export class AuthenticationService {
   public async authenticate (): Promise<void> {
     
     if (!this.gapiService.getGoogleAuth()) {
-      await this.gapiService.loadGoogleApiAuth();
+      await this.gapiService.loadGoogleAuthApi();
     }
     
     const auth = this.gapiService.getGoogleAuth();

@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 
 import { Label, Message } from '../models';
 
+function compareLabels(l1: any, l2: any): number {
+  return (l1.name < l2.name ? -1 : (l1.name > l2.name ? 1 : 0));
+}
+
 @Injectable()
 export class GoogleClientService {
   
@@ -83,9 +87,7 @@ export class GoogleClientService {
     const labelsResult: any[] = resp.result.labels;
     const labels: Label[] = [];
     
-    const sortedLabels = labelsResult.sort((l1: any, l2: any) => {
-      return (l1.name < l2.name ? -1 : (l1.name > l2.name ? 1 : 0));
-    });
+    const sortedLabels = labelsResult.sort(compareLabels);
     
     // each iteration returns Promise, and await Promise.all() waits for all of them to be finished
     await Promise.all(
@@ -96,10 +98,10 @@ export class GoogleClientService {
       })
     );
     
-    this.labels = labels;
+    this.labels = labels.sort(compareLabels);
   }
   
-  private async addLabel (data: { id: string, name: string }, labelList: Label[]): Promise<void> {
+  private async addLabel (data: Label, labelList: Label[]): Promise<void> {
     
     const sublabelSplitIndex = data.name.indexOf('/');
     
@@ -128,7 +130,7 @@ export class GoogleClientService {
       
       labelToAdd.name = labelsSplit[ 1 ];
       
-      await this.getAdditionalLabelData(labelToAdd).then();
+      await this.getAdditionalLabelData(labelToAdd);
       
       parentLabel.children.push(labelToAdd);
       
@@ -136,11 +138,12 @@ export class GoogleClientService {
       
       const existing = labelList.find((f: Label) => f.name === data.name);
       
-      labelToAdd.name = data.name;
-      
-      await this.getAdditionalLabelData(labelToAdd).then();
-      
       if (!existing) {
+  
+        labelToAdd.name = data.name;
+  
+        await this.getAdditionalLabelData(labelToAdd);
+        
         labelList.push(labelToAdd);
       }
     }
@@ -230,14 +233,12 @@ export class GoogleClientService {
       return;
     }
     
-    await this.parseMessages(responseMessages, label).then();
+    await this.getMessagesData(responseMessages, label).then();
   }
   
-  private async parseMessages (responseMessages: Array<any>, label: Label): Promise<void> {
+  private async getMessagesData (responseMessages: Array<any>, label: Label): Promise<void> {
     
     const messages: Message[] = [];
-    
-    // console.log('message count', messageCount);
     
     await Promise.all(
       responseMessages.map(async (m: Message) => {

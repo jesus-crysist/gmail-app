@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Message } from '../../shared/models';
 
 @Component({
@@ -6,7 +6,7 @@ import { Message } from '../../shared/models';
   templateUrl: './mail-view.component.html',
   styleUrls: [ './mail-view.component.css' ]
 })
-export class MailViewComponent implements OnChanges {
+export class MailViewComponent implements AfterViewInit {
   
   @Input() message: Message;
   
@@ -20,13 +20,11 @@ export class MailViewComponent implements OnChanges {
   constructor () {
   }
   
-  ngOnChanges () {
-    if (this.message && this.messageTextContainer) {
-      const el = this.messageTextContainer.nativeElement;
-      
-      if (this.message.body && el && el.contentWindow) {
-        el.contentWindow.document.body.innerHTML = this.message.body;
-      }
+  ngAfterViewInit(): void {
+    const el = this.messageTextContainer.nativeElement;
+  
+    if (this.message.body && el && el.contentWindow) {
+      el.contentWindow.document.body.innerHTML = this.message.body;
     }
   }
   

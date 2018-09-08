@@ -4,7 +4,7 @@ import { GoogleClientService } from '../../shared/google';
 import { NgbAccordion, NgbPanelChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: '[app-mail-list]',
+  selector: '[app-message-list]',
   templateUrl: './mail-list.component.html',
   styleUrls: [ './mail-list.component.css' ]
 })

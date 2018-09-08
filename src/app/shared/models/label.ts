@@ -1,7 +1,7 @@
 export interface Label {
     id: string;
     name: string;
-    active: boolean;
+    active?: boolean;
     messagesTotal?: number;
     messagesUnread?: number;
     children?: Label[];

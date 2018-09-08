@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { GoogleApiConfig } from './google-api-config';
 import GoogleAuth = gapi.auth2.GoogleAuth;
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class GoogleApiService {
   
   private readonly gapiUrl: string = 'https://apis.google.com/js/api.js';
@@ -21,26 +19,26 @@ export class GoogleApiService {
   constructor () {
   }
   
-  async loadApiFile (): Promise<void> {
+    async loadApiFile (): Promise<void> {
+      
+      return new Promise<void>((resolve) => {
+        const node = document.createElement('script');
+        node.src = this.gapiUrl;
+        node.type = 'text/javascript';
+        node.charset = 'utf-8';
+        document.getElementsByTagName('head')[ 0 ].appendChild(node);
+        node.onload = () => {
+          gapi.load('client', () => resolve());
+        };
+      });
+    }
     
-    return new Promise<void>((resolve) => {
-      const node = document.createElement('script');
-      node.src = this.gapiUrl;
-      node.type = 'text/javascript';
-      node.charset = 'utf-8';
-      document.getElementsByTagName('head')[ 0 ].appendChild(node);
-      node.onload = () => {
-        gapi.load('client', () => resolve());
-      };
-    });
-  }
-  
-  async loadGoogleApiAuth (): Promise<void> {
-    await this.loadApiFile().then();
-    
-    await new Promise((resolve) => gapi.load('auth2', resolve));
-    this.googleAuth = gapi.auth2.init(this.config);
-  }
+    async loadGoogleAuthApi (): Promise<void> {
+      await this.loadApiFile().then();
+      
+      await new Promise((resolve) => gapi.load('auth2', resolve));
+      this.googleAuth = gapi.auth2.init(this.config);
+    }
   
   public getGoogleAuth (): GoogleAuth {
     return this.googleAuth;

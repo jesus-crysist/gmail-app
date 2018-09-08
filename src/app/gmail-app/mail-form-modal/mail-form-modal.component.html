@@ -25,8 +25,8 @@
 
             <span *ngIf="emailRecipient.errors?.required">You have to enter recipient.</span>
             <span *ngIf="emailRecipient.errors?.email && !emailRecipient.errors?.required">
-                            You have to enter valid recipient address.
-                        </span>
+                You have to enter valid recipient address.
+            </span>
 
           </div>
 
@@ -36,15 +36,15 @@
 
       <div class="form-group row">
 
-        <label for="emailSubject" class="col-sm-2 col-form-label">Subject:</label>
+        <label for="emailSubject" class="col-sm-2 col-form-label"><Subject></Subject>:</label>
 
         <div class="col-sm-10">
-          <input class="form-control" id="emailSubject" placeholder="Subject"
+          <input class="form-control" id="emailSubject" placeholder="Subject" required
                  [(ngModel)]="message.subject" name="subject" #subjectField #emailSubject="ngModel">
 
           <div *ngIf="emailRecipient.pristine && subjectField.value === ''"
                class="alert alert-warning">
-            You might want to write subject of the e-mail.
+            You must write subject of the e-mail.
           </div>
 
         </div>

@@ -32,16 +32,14 @@ export class GmailAppComponent implements OnInit {
     private googleService: GoogleClientService,
     private toastService: ToastrService
   ) {
-    
     this.loggedUser = this.authService.getUser();
-    
   }
   
   ngOnInit (): void {
-    this.initialLoadData().then();
+    this.loadInitialData().then();
   }
   
-  private async initialLoadData (): Promise<void> {
+  private async loadInitialData (): Promise<void> {
     this.loading = true;
     
     await this.googleService.loadGmailClient();
@@ -55,9 +53,10 @@ export class GmailAppComponent implements OnInit {
     this.router.navigate([ '/login' ]);
   }
   
-  async searchMail (searchTerm: string): Promise<void> {
+  async searchMessages (searchTerm: string): Promise<void> {
+    this.loading = true;
     await this.googleService.loadMessages(this.selectedLabel, searchTerm);
-    this.messageList = this.googleService.getMessages();
+    this.afterLoadingMessages();
   }
   
   onLabelSelected (label: Label): void {
@@ -68,8 +67,6 @@ export class GmailAppComponent implements OnInit {
     this.loading = true;
     
     this.selectedLabel = label;
-    
-    console.log('selected label', label);
     
     this.googleService.loadMessages(label).then(
       () => this.afterLoadingMessages()
@@ -92,7 +89,18 @@ export class GmailAppComponent implements OnInit {
     this.openMailModal(message);
   }
   
-  deleteMessage (message: Message) {
+  sendMessage (message: Message): void {
+    
+    this.loading = true;
+    
+    this.googleService.sendMessage(message, () => {
+      // initiate re-fetching messages in current label
+      this.onLabelSelected(this.selectedLabel);
+      this.toastService.success('Message sent!', `To: ${message.toEmail}`);
+    });
+  }
+  
+  deleteMessage (message: Message): void {
     
     // keep label reference so it can be later used to load new list of messages
     const currentLabel = this.selectedLabel;
@@ -106,24 +114,8 @@ export class GmailAppComponent implements OnInit {
         // initiate re-fetching messages in current label
         this.onLabelSelected(currentLabel);
         this.toastService.success(`Subject: ${message.subject}`, 'Message deleted!');
-        
-        this.loading = false;
       }
     );
-  }
-  
-  sendMessage (message: Message) {
-    
-    this.loading = true;
-    
-    this.googleService.sendMessage(message, () => {
-      this.toastService.success('Message sent!', `To: ${message.toEmail}`);
-      this.loading = false;
-    });
-  }
-  
-  openMailModal (message?: Message, reply?: boolean): void {
-    this.mailFormModalComponent.open(message, reply);
   }
   
   goToPreviousPage (): void {
@@ -134,6 +126,10 @@ export class GmailAppComponent implements OnInit {
   goToNextPage (): void {
     this.loading = true;
     this.googleService.getNextMessagePage().then(() => this.afterLoadingMessages());
+  }
+  
+  private openMailModal (message?: Message, reply?: boolean): void {
+    this.mailFormModalComponent.open(message, reply);
   }
   
   private afterLoadingMessages (): void {

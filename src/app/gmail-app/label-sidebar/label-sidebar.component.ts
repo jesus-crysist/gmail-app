@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Label } from '../../shared/models';
-import { GoogleClientService } from '../../shared/google';
 
 @Component({
   selector: '[app-label-sidebar]',
@@ -10,15 +9,10 @@ import { GoogleClientService } from '../../shared/google';
 export class LabelSidebarComponent implements OnInit {
   
   @Input() labels: Array<Label>;
-  @Input() initialLoading: boolean;
   
   @Output() labelSelected: EventEmitter<Label> = new EventEmitter<Label>();
   
-  constructor (
-    private googleService: GoogleClientService
-  ) {
-    
-    this.labels = this.googleService.getLabels();
+  constructor () {
   }
   
   ngOnInit () {

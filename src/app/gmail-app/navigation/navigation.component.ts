@@ -9,7 +9,6 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 })
 export class NavigationComponent implements AfterViewInit {
   
-  @Input() selectedLabel: string;
   @Input() loggedUser: string;
   @Input() userAvatar: string;
   
@@ -33,10 +32,12 @@ export class NavigationComponent implements AfterViewInit {
       .pipe(
         debounceTime(750),
         distinctUntilChanged(),
-        map((keyEvent: KeyboardEvent) => keyEvent.srcElement)
+        map((keyEvent: KeyboardEvent) => (<HTMLInputElement>keyEvent.srcElement).value)
       )
-      .subscribe((element: HTMLInputElement) => {
-        this.search.emit(element.value);
+      .subscribe((value: string) => {
+        if (value !== '') {
+          this.search.emit(value);
+        }
       });
     
   }
